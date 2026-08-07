@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arctic English Games - Penguin Adventure</title>
+<style>
+/* ===== RESET & BASE ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #e0f2fe; /* icy sky */
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-image: radial-gradient(circle at 10% 20%, #e0f7fa 0%, #b2ebf2 100%);
+}
+
+/* ===== PENGUIN (CSS Art - no external images) ===== */
+.penguin-mascot {
+  position: relative;
+  width: 100px;
+  height: 140px;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+}
+.penguin-mascot .body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 110px;
+  background: radial-gradient(ellipse at 50% 30%, #f5f5f5 0%, #d9e2e8 70%, #b0bec5 100%);
+  border-radius: 50% 50% 45% 45%;
+  overflow: hidden;
+}
+.penguin-mascot .body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 60px;
+  background: #37474f;
+  border-radius: 50% 50% 30% 30%;
+}
+.penguin-mascot .head {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle at 50% 50%, #37474f 30%, #263238 100%);
+  border-radius: 50%;
+  z-index: 2;
+}
+.penguin-mascot .eye-left, .penguin-mascot .eye-right {
+  position: absolute;
+  top: 25px;
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle at 30% 30%, #4fc3f7, #0288d1);
+  border-radius: 50%;
+  border: 2px solid #263238;
+  z-index: 3;
+}
+.penguin-mascot .eye-left { left: 12px; }
+.penguin-mascot .eye-right { right: 12px; }
+.penguin-mascot .eye-left::after, .penguin-mascot .eye-right::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+}
+.penguin-mascot .beak {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 14px;
+  background: #ffb74d;
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  z-index: 3;
+}
+.penguin-mascot .feet {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+}
+.penguin-mascot .feet div {
+  width: 25px;
+  height: 12px;
+  background: #ffa726;
+  border-radius: 50% 50% 0 0;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes jump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+@keyframes celebrate {
+  0% { transform: rotate(-5deg) scale(1); }
+  100% { transform: rotate(5deg) scale(1.1); }
+}
+@keyframes floatSnow {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 0.8; }
+  100% { transform: translateY(10px) rotate(360deg); opacity: 0.2; }
+}
+.penguin-mascot.happy { animation: jump 0.6s ease; }
+.penguin-mascot.sad { animation: wiggle 0.5s ease; }
+.penguin-mascot.level-complete { animation: celebrate 1s infinite alternate; }
+
+/* ===== LAYOUT ===== */
+.app-container {
+  max-width: 1100px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 40px;
+  padding: 25px;
+  box-shadow: 0 20px 40px rgba(0, 50, 80, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ===== HEADER / HUD ===== */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 100px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(180, 220, 240, 0.5);
+}
+.hud .game-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #01579b;
+  letter-spacing: -0.5px;
+}
+.hud-stats {
+  display: flex;
+  gap: 20px;
+  background: #e1f5fe;
+  padding: 6px 18px;
+  border-radius: 40px;
+}
+.hud-stats span {
+  font-weight: 700;
+  color: #0277bd;
+  font-size: 14px;
+}
+.hud-stats span small { font-weight: 400; color: #546e7a; }
+
+/* ===== MAIN MENU (SHOWCASE) ===== */
+.main-menu {
+  display: block;
+  text-align: center;
+}
+.main-menu h2 {
+  color: #01579b;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+.main-menu p {
+  color: #546e7a;
+  margin-bottom: 30px;
+}
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.game-card {
+  background: white;
+  border-radius: 30px;
+  padding: 30px 20px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  border: 2px solid #b3e5fc;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.game-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0, 50, 80, 0.15); }
+.game-card .icon { font-size: 50px; margin-bottom: 10px; display: block; }
+.game-card h3 { color: #0277bd; font-size: 20px; margin-bottom: 8px; }
+.game-card p { color: #546e7a; font-size: 14px; }
+.game-card .play-btn {
+  margin-top: 15px;
+  background: #0288d1;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 40px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.game-card .play-btn:hover { background: #01579b; }
+
+/* ===== GAME ARENA (Hidden until clicked) ===== */
+.game-arena {
+  display: none;
+  position: relative;
+}
+.back-btn {
+  background: transparent;
+  border: none;
+  color: #0277bd;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+.back-btn:hover { color: #01579b; }
+
+/* ----- GAME 1: Arctic Fact Finder (Spot the Difference) ----- */
+.diff-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.diff-image {
+  height: 300px;
+  background: #e1f5fe;
+  border-radius: 20px;
+  border: 3px dashed #81d4fa;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #546e7a;
+  cursor: pointer;
+  overflow: hidden;
+}
+.diff-marker {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: rgba(76, 175, 80, 0.4);
+  border: 3px solid #4caf50;
+  border-radius: 50%;
+  display: none;
+  pointer-events: none;
+}
+.diff-progress {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 15px 0;
+}
+.diff-progress .dot {
+  width: 18px; height: 18px;
+  background: #b0bec5;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+.diff-progress .dot.done { background: #4caf50; }
+
+/* ----- GAME 2: Sentence Journey (Grammar) ----- */
+.journey-route {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  position: relative;
+  margin-bottom: 20px;
+}
+.journey-route::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  right: 5%;
+  height: 4px;
+  background: #b0bec5;
+  z-index: 0;
+}
+.journey-step {
+  width: 45px; height: 45px;
+  background: white;
+  border: 3px solid #81d4fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #37474f;
+  position: relative;
+  z-index: 1;
+}
+.journey-step.done { background: #4caf50; border-color: #4caf50; color: white; }
+.journey-step.current { border-color: #ffb300; background: #fff8e1; transform: scale(1.1); }
+.threat-bar {
+  height: 20px;
+  background: #ffcdd2;
+  border-radius: 20px;
+  margin: 10px 0;
+  overflow: hidden;
+  border: 2px solid #ef9a9a;
+}
+.threat-fill {
+  height: 100%;
+  width: 20%;
+  background: #ef5350;
+  transition: width 0.5s ease;
+}
+.question-box {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 15px 0;
+  text-align: center;
+  border: 2px solid #b3e5fc;
+}
+.question-box h4 { color: #01579b; font-size: 22px; margin-bottom: 10px; }
+.answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 400px; margin: 0 auto; }
+.answer-btn {
+  padding: 12px; border: 2px solid #81d4fa; border-radius: 16px; background: white; font-size: 18px; font-weight: 700; color: #01579b; cursor: pointer;
+  transition: background 0.2s;
+}
+.answer-btn:hover { background: #e1f5fe; }
+
+/* ----- GAME 3: Word-Block Builder (Spelling) ----- */
+.builder-slots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+.slot {
+  width: 50px; height: 55px;
+  background: #f5f5f5;
+  border: 3px dashed #90a4ae;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 900; color: #37474f;
+  transition: all 0.3s;
+}
+.slot.filled { background: #c8e6c9; border: 3px solid #4caf50; transform: scale(1.05); }
+.builder-floes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  min-height: 80px;
+  padding: 15px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 20px;
+  border: 2px dashed #81d4fa;
+}
+.floe-tile {
+  width: 50px; height: 50px;
+  background: white;
+  border-radius: 15px 5px 15px 5px;
+  box-shadow: 0 4px 0 #90a4ae;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 800; color: #01579b;
+  cursor: pointer; transition: transform 0.2s;
+}
+.floe-tile:hover { transform: translateY(-3px); }
+.floe-tile.used { opacity: 0.2; pointer-events: none; transform: scale(0.8); }
+.floe-tile.wrong { animation: wiggle 0.4s ease; border-color: #ef5350; }
+
+/* ===== GENERAL UI ===== */
+.feedback-box {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #01579b;
+  padding: 10px;
+  min-height: 40px;
+}
+.action-btn {
+  background: #0288d1; color: white; border: none;
+  padding: 12px 30px; border-radius: 40px; font-weight: 700;
+  cursor: pointer; transition: 0.2s;
+  margin: 10px auto; display: block;
+}
+.action-btn:hover { background: #01579b; }
+.action-btn:disabled { background: #b0bec5; cursor: not-allowed; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 800px) {
+  .game-grid { grid-template-columns: 1fr 1fr; }
+  .diff-container { grid-template-columns: 1fr; }
+  .hud { flex-direction: column; align-items: stretch; gap: 10px; border-radius: 20px; }
+  .hud-stats { justify-content: center; }
+}
+@media (max-width: 500px) {
+  .game-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-container" id="app">
+  <!-- HUD -->
+  <div class="hud">
+    <div class="game-title">🐧 Arctic English</div>
+    <div class="hud-stats">
+      <span id="hudScore">⭐ <small>0</small></span>
+      <span id="hudCombo">🔥 <small>x1</small></span>
+      <span id="hudLevel">📖 <small>Game</small></span>
+    </div>
+  </div>
+
+  <!-- MAIN MENU -->
+  <div class="main-menu" id="mainMenu">
+    <div style="display:flex; justify-content:center; margin-bottom:15px;">
+      <div class="penguin-mascot"><div class="head"></div><div class="eye-left"></div><div class="eye-right"></div><div class="beak"></div><div class="body"></div><div class="feet"><div></div><div></div></div></div>
+    </div>
+    <h2>Welcome to the Ice!</h2>
+    <p>Choose a game and help the penguin learn English!</p>
+    <div class="game-grid">
+      <div class="game-card" onclick="startGame(1)">
+        <span class="icon">🔍</span>
+        <h3>Spot the Difference</h3>
+        <p>Find 5 things! Look at the ice and click.</p>
+        <button class="play-btn">Play</button>
+      </div>
+      <div class="game-card" onclick="startGame(2)">
+        <span class="icon">❓</span>
+        <h3>Sentence Journey</h3>
+        <p>Choose the right word. Run from the storm!</p>
+        <button class="play-btn">Play</button>
+      </div>
+      <div class="game-card" onclick="startGame(3)">
+        <span class="icon">🧊</span>
+        <h3>Word-Block Builder</h3>
+        <p>Drag the ice letters. Build the word!</p>
+        <button class="play-btn">Play</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME ARENA -->
+  <div class="game-arena" id="gameArena">
+    <button class="back-btn" onclick="backToMenu()">← Back to games</button>
+    <div id="gameContent"></div>
+    <div class="feedback-box" id="feedback">Ready to play!</div>
+    <div style="display:flex; justify-content:center; margin-top:10px;">
+      <div class="penguin-mascot" id="mascot"><div class="head"></div><div class="eye-left"></div><div class="eye-right"></div><div class="beak"></div><div class="body"></div><div class="feet"><div></div><div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+//  CORE ENGINE
+// ==========================================
+let currentGame = 0;
+let score = 0;
+let combo = 1;
+
+const mascot = document.getElementById('mascot');
+const feedback = document.getElementById('feedback');
+const hudScore = document.getElementById('hudScore');
+const hudCombo = document.getElementById('hudCombo');
+
+function updateHUD() {
+  hudScore.innerHTML = `⭐ <small>${score}</small>`;
+  hudCombo.innerHTML = `🔥 <small>x${combo}</small>`;
+}
+
+function animateMascot(state, text) {
+  mascot.className = 'penguin-mascot';
+  void mascot.offsetWidth;
+  if (state) mascot.classList.add(state);
+  if (text) feedback.textContent = text;
+  setTimeout(() => {
+    if (state) mascot.classList.remove(state);
+  }, 700);
+}
+
+// ==========================================
+//  GAME 1: SPOT THE DIFFERENCE
+// ==========================================
+const diffData = [
+  { left: "Penguin has a scarf", right: "Penguin has NO scarf" },
+  { left: "2 clouds", right: "3 clouds" },
+  { left: "Fish is blue", right: "Fish is orange" },
+  { left: "Snowflake", right: "Star" },
+  { left: "Iceberg is big", right: "Iceberg is small" }
+];
+
+let diffFound = 0;
+let diffGameOver = false;
+
+function renderGame1() {
+  const html = `
+    <h3 style="text-align:center; color:#01579b;">Find 5 differences!</h3>
+    <div class="diff-container">
+      <div class="diff-image" id="imgLeft" onclick="clickDiff('left')">
+        LEFT IMAGE<br><small>click here</small>
+        <div class="diff-marker" id="mLeft" style="left:30%; top:40%;"></div>
+      </div>
+      <div class="diff-image" id="imgRight" onclick="clickDiff('right')">
+        RIGHT IMAGE<br><small>click here</small>
+        <div class="diff-marker" id="mRight" style="left:30%; top:40%;"></div>
+      </div>
+    </div>
+    <div class="diff-progress" id="diffProgress">
+      ${Array(5).fill(0).map((_,i) => `<div class="dot" id="dDot${i}"></div>`).join('')}
+    </div>
+  `;
+  document.getElementById('gameContent').innerHTML = html;
+  diffFound = 0;
+  diffGameOver = false;
+  updateHUD();
+}
+
+function clickDiff(side) {
+  if (diffGameOver) return;
+  // Randomly decide if this click is a success (simulate finding a difference)
+  // In a real game, you'd check coordinates. Here we simulate the mechanic.
+  if (diffFound < 5) {
+    diffFound++;
+    document.getElementById(`dDot${diffFound-1}`).classList.add('done');
+    document.getElementById(`m${side.charAt(0).toUpperCase()+side.slice(1)}`).style.display = 'block';
+    
+    score += 10 * combo;
+    combo = Math.min(combo + 1, 5);
+    updateHUD();
+    animateMascot('happy', 'Great find! +' + (10*combo) + ' points!');
+    
+    if (diffFound === 5) {
+      diffGameOver = true;
+      animateMascot('level-complete', '🎉 You found them all! Amazing!');
+    }
+  }
+}
+
+// ==========================================
+//  GAME 2: SENTENCE JOURNEY
+// ==========================================
+const journeyTasks = [
+  { q: "_____ your friend like winter?", a: "Does" },
+  { q: "_____ animals need food?", a: "Do" },
+  { q: "_____ this animal live in cold places?", a: "Does" },
+  { q: "_____ they travel in groups?", a: "Do" }
+];
+
+let jIndex = 0;
+let jLives = 3;
+let jThreat = 0;
+let jGameOver = false;
+
+function renderGame2() {
+  const html = `
+    <h3 style="text-align:center; color:#01579b;">Run from the storm!</h3>
+    <div class="journey-route">
+      ${Array(7).fill(0).map((_,i) => {
+        let cls = 'journey-step';
+        if (i < jIndex) cls += ' done';
+        if (i === jIndex) cls += ' current';
+        return `<div class="${cls}">${i===0?'🏁':i===6?'🏠':i}</div>`;
+      }).join('')}
+    </div>
+    <div class="threat-bar"><div class="threat-fill" id="threatFill" style="width:${jThreat}%"></div></div>
+    <div class="question-box">
+      <h4 id="jQuestion">${journeyTasks[jIndex]?.q || 'Game Over'}</h4>
+      <div class="answers-grid">
+        <button class="answer-btn" onclick="journeyAnswer('Do')">Do</button>
+        <button class="answer-btn" onclick="journeyAnswer('Does')">Does</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('gameContent').innerHTML = html;
+  jIndex = 0; jLives = 3; jThreat = 0; jGameOver = false;
+  updateHUD();
+}
+
+function journeyAnswer(choice) {
+  if (jGameOver || jIndex >= journeyTasks.length) return;
+  const correct = journeyTasks[jIndex].a;
+  
+  if (choice === correct) {
+    score += 15 * combo;
+    combo = Math.min(combo + 1, 5);
+    jIndex++;
+    jThreat = Math.max(0, jThreat - 10);
+    animateMascot('happy', 'Correct! Keep running!');
+    updateHUD();
+    renderGame2(); // re-render to update steps
+    
+    if (jIndex === journeyTasks.length) {
+      jGameOver = true;
+      animateMascot('level-complete', '🏆 You reached safety! Perfect!');
+    }
+  } else {
+    combo = 1;
+    jLives--;
+    jThreat = Math.min(100, jThreat + 25);
+    animateMascot('sad', 'Oh no! The storm is closer!');
+    updateHUD();
+    renderGame2();
+    
+    if (jLives <= 0 || jThreat >= 100) {
+      jGameOver = true;
+      animateMascot('sad', '💨 The storm caught you! Try again!');
+    }
+  }
+}
+
+// ==========================================
+//  GAME 3: WORD-BLOCK BUILDER
+// ==========================================
+const wordList = ["PENGUIN", "SEAL", "WHALE", "SNOW", "ICE", "IGLOO"];
+let wIndex = 0;
+let wLetterIdx = 0;
+let wGameOver = false;
+
+function renderGame3() {
+  const word = wordList[wIndex] || "DONE";
+  const shuffled = word.split('').sort(() => Math.random() - 0.5);
+  
+  const html = `
+    <h3 style="text-align:center; color:#01579b;">Build the word!</h3>
+    <div style="text-align:center; color:#546e7a; font-size:14px;">Word ${wIndex+1} of ${wordList.length}</div>
+    <div class="builder-slots" id="bSlots">
+      ${Array(word.length).fill(0).map(() => `<div class="slot"></div>`).join('')}
+    </div>
+    <div class="builder-floes" id="bFloes">
+      ${shuffled.map((l, i) => `<div class="floe-tile" data-letter="${l}" data-id="${i}" onclick="clickTile(this)">${l}</div>`).join('')}
+    </div>
+  `;
+  document.getElementById('gameContent').innerHTML = html;
+  wLetterIdx = 0;
+  wGameOver = false;
+  updateHUD();
+}
+
+function clickTile(el) {
+  if (wGameOver || wIndex >= wordList.length) return;
+  if (el.classList.contains('used')) return;
+  
+  const word = wordList[wIndex];
+  const expected = word[wLetterIdx];
+  const chosen = el.dataset.letter;
+  
+  if (chosen === expected) {
+    const slots = document.getElementById('bSlots').children;
+    slots[wLetterIdx].textContent = chosen;
+    slots[wLetterIdx].classList.add('filled');
+    el.classList.add('used');
+    wLetterIdx++;
+    
+    score += 10 * combo;
+    combo = Math.min(combo + 1, 5);
+    updateHUD();
+    animateMascot('happy', 'Great! +' + (10*combo) + ' points!');
+    
+    if (wLetterIdx === word.length) {
+      wIndex++;
+      if (wIndex === wordList.length) {
+        wGameOver = true;
+        animateMascot('level-complete', '🎉 You built all words! You are a champion!');
+      } else {
+        setTimeout(renderGame3, 800);
+      }
+    }
+  } else {
+    combo = 1;
+    el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 400);
+    animateMascot('sad', 'Almost! Try another letter.');
+    updateHUD();
+  }
+}
+
+// ==========================================
+//  NAVIGATION
+// ==========================================
+function startGame(id) {
+  currentGame = id;
+  document.getElementById('mainMenu').style.display = 'none';
+  document.getElementById('gameArena').style.display = 'block';
+  document.getElementById('hudLevel').innerHTML = `📖 <small>Game ${id}</small>`;
+  feedback.textContent = 'Let\'s go!';
+  
+  if (id === 1) renderGame1();
+  if (id === 2) renderGame2();
+  if (id === 3) renderGame3();
+}
+
+function backToMenu() {
+  document.getElementById('mainMenu').style.display = 'block';
+  document.getElementById('gameArena').style.display = 'none';
+  document.getElementById('hudLevel').innerHTML = `📖 <small>Menu</small>`;
+  score = 0; combo = 1;
+  updateHUD();
+}
+</script>
+</body>
+</html>
