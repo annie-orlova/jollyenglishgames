@@ -1,0 +1,82 @@
+[
+  {
+    "word": "badminton",
+    "definition": "Hit a shuttlecock over a net with a racket.",
+    "image": "🏸"
+  },
+  {
+    "word": "basketball",
+    "definition": "Throw a ball into a high basket.",
+    "image": "🏀"
+  },
+  {
+    "word": "cycling",
+    "definition": "Ride a bicycle.",
+    "image": "🚴"
+  },
+  {
+    "word": "football",
+    "definition": "Kick a ball into a goal.",
+    "image": "⚽"
+  },
+  {
+    "word": "hockey",
+    "definition": "Hit a puck with a stick on ice.",
+    "image": "🏒"
+  },
+  {
+    "word": "ice-skating",
+    "definition": "Move on ice in boots with metal blades.",
+    "image": "⛸️"
+  },
+  {
+    "word": "roller skating",
+    "definition": "Move in boots with small wheels.",
+    "image": "🛼"
+  },
+  {
+    "word": "sailing",
+    "definition": "Travel in a boat with a sail.",
+    "image": "⛵"
+  },
+  {
+    "word": "skateboarding",
+    "definition": "Ride a board with four small wheels.",
+    "image": "🛹"
+  },
+  {
+    "word": "skiing",
+    "definition": "Move on snow on two long skis.",
+    "image": "⛷️"
+  },
+  {
+    "word": "swimming",
+    "definition": "Move through water using your arms and legs.",
+    "image": "🏊"
+  },
+  {
+    "word": "table tennis",
+    "definition": "Hit a small ball over a net on a table.",
+    "image": "🏓"
+  },
+  {
+    "word": "taekwondo",
+    "definition": "A martial art with high kicks.",
+    "image": "🥋"
+  },
+  {
+    "word": "tennis",
+    "definition": "Hit a ball over a net with a racket on a court.",
+    "image": "🎾"
+  },
+  {
+    "word": "volleyball",
+    "definition": "Hit a ball over a net with your hands.",
+    "image": "🏐"
+  },
+  {
+    "word": "windsurfing",
+    "definition": "Stand on a board with a sail and move on water.",
+    "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTEwIiB2aWV3Qm94PSIwIDAgMTUwIDExMCI+PHBhdGggZD0iTTggOTQgUTI1IDgzIDQyIDk0IFQ3NiA5NCBUMTEwIDk0IFQxNDQgOTQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY3YjRjMSIgc3Ryb2tlLXdpZHRoPSI1Ii8+PHBhdGggZD0iTTM4IDg2IFE4NSA5NiAxMjcgODMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2RmOTg1MiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PHBhdGggZD0iTTg3IDEyIEw4NyA4NCBNOTEgMTYgTDEyNCA3MSBMOTEgNzEiIGZpbGw9IiM5OGM3YjEiIHN0cm9rZT0iIzMyNmM2NSIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGNpcmNsZSBjeD0iNjIiIGN5PSI0NyIgcj0iNyIgZmlsbD0iI2JkODU1ZiIvPjxwYXRoIGQ9Ik02NCA1NSBMNzQgNzAgTDg1IDg0IE03NCA3MCBMNTggODYgTTY3IDU4IEw4NyA0OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGI2MzdjIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg=="
+  }
+]
