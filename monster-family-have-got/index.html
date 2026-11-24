@@ -16,9 +16,9 @@
 .bubble-sentence{font-size:clamp(30px,4vw,49px);font-weight:bold;text-align:center;margin:25px 0;color:#43266e}
 .bubble-field{height:425px;position:relative;overflow:hidden;background:linear-gradient(#f1faff,#faf4ff);border-radius:25px;border:2px solid #e0d7f1}
 .bubble{position:absolute;width:clamp(116px,18vw,178px);height:clamp(116px,18vw,178px);padding:5px;border-radius:50%;font-size:clamp(27px,3vw,39px);border:3px solid #c6a0ec;color:#422469;background:radial-gradient(circle at 30% 25%,white,#ede0ff 55%,#cdb0f0);box-shadow:inset -8px -9px 15px #b085d633,0 8px 15px #7954a51a;animation:floatBubble 4.2s ease-in-out infinite}
-.bubble:nth-child(2){background:radial-gradient(circle at 30% 25%,white,#d8f4fb 55%,#a0dce8);border-color:#86cad9;animation-delay:-1.2s}
-.bubble:nth-child(3){background:radial-gradient(circle at 30% 25%,white,#ffe6ef 55%,#f4b6cf);border-color:#edacc6;animation-delay:-2.5s}
-.bubble:nth-child(4){background:radial-gradient(circle at 30% 25%,white,#fff1bd 55%,#efd883);border-color:#e2ca78;animation-delay:-3.4s}
+.bubble.color-blue{background:radial-gradient(circle at 30% 25%,white,#d8f4fb 55%,#a0dce8);border-color:#86cad9;animation-delay:-1.2s}
+.bubble.color-pink{background:radial-gradient(circle at 30% 25%,white,#ffe6ef 55%,#f4b6cf);border-color:#edacc6;animation-delay:-2.5s}
+.bubble.color-yellow{background:radial-gradient(circle at 30% 25%,white,#fff1bd 55%,#efd883);border-color:#e2ca78;animation-delay:-3.4s}
 .bubble.popped{animation:popBubble .35s ease-out forwards;pointer-events:none}
 .bubble.missed{border:5px solid #b84a49;opacity:.55}
 .star-counter{text-align:center;font-size:28px;color:#775019;font-weight:bold}
@@ -131,12 +131,13 @@ cancelAnimationFrame(bubbleFrame);
 const q=bubbleQuestions[index],answer=shortForms[q[0]]+' got';
 const alternatives=shuffle(Object.values(shortForms).map(x=>x+' got').filter(x=>x!==answer)).slice(0,3);
 const options=shuffle([answer,...alternatives]);
+const bubbleColors=shuffle(['purple','blue','pink','yellow']);
 solved=false;
 app.innerHTML=renderHeader('Bubble pop','Read the sentence. Pop its short form!',index+1,bubbleQuestions.length)+
 '<div class="star-counter">Stars: <span id="bubbleStars">'+bubbleStars+'</span> / '+bubbleQuestions.length+'</div>'+
 '<div class="star-strip" id="starStrip" aria-label="Earned stars">'+('⭐'.repeat(bubbleStars))+'</div>'+
 '<div class="bubble-sentence" id="bubbleSentence"><span class="target-form">'+q[0]+' '+q[1]+' got</span> '+q[2]+'.</div>'+
-'<div class="bubble-field">'+options.map((word,i)=>'<button class="bubble" data-bubble="'+i+'" style="left:'+([6,55,12,62][i])+'%;top:'+([44,46,205,210][i])+'px" aria-label="Pop '+word+'">'+word+'</button>').join('')+'</div>'+
+'<div class="bubble-field">'+options.map((word,i)=>'<button class="bubble color-'+bubbleColors[i]+'" data-bubble="'+i+'" style="left:'+([6,55,12,62][i])+'%;top:'+([44,46,205,210][i])+'px" aria-label="Pop '+word+'">'+word+'</button>').join('')+'</div>'+
 '<div id="feedback" class="feedback" role="status" aria-live="polite"></div>'+
 '<div class="actions"><button class="primary" id="bubbleNext" hidden>Next →</button></div>';
 startBubbleMotion();
